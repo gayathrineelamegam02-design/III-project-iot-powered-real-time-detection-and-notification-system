@@ -1,0 +1,58 @@
+#define BLYNK_PRINT Serial
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+// Blynk authentication token
+char auth[] = "Your_Blynk_Auth_Token";
+
+// WiFi credentials
+char ssid[] = "Your_WiFi_Name";
+char pass[] = "Your_WiFi_Password";
+
+// Sensor pins
+#define PIR_SENSOR D5
+#define SOUND_SENSOR A0
+
+int pirState = 0;
+int soundValue = 0;
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(PIR_SENSOR, INPUT);
+
+  Blynk.begin(auth, ssid, pass);
+}
+
+void loop()
+{
+  Blynk.run();
+
+  // Read PIR sensor
+  pirState = digitalRead(PIR_SENSOR);
+
+  // Read Sound sensor
+  soundValue = analogRead(SOUND_SENSOR);
+
+  Serial.print("Sound Level: ");
+  Serial.println(soundValue);
+
+  // Motion Detection
+  if (pirState == HIGH)
+  {
+    Serial.println("Motion Detected!");
+    Blynk.logEvent("motion_alert","Intruder Motion Detected!");
+    delay(2000);
+  }
+
+  // Sound Detection
+  if (soundValue > 500)
+  {
+    Serial.println("Loud Sound Detected!");
+    Blynk.logEvent("sound_alert","Abnormal Sound Detected!");
+    delay(2000);
+  }
+
+  delay(500);
+}
